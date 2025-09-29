@@ -31,6 +31,7 @@
 		"storage": "32gb"
 	},
 	"appPort": 3000,
+	// TODO: cambiar el nombre del contenedor y puerto
 	"runArgs": [
 		"--name",
 		"selenium-scrapper-quickstarter",

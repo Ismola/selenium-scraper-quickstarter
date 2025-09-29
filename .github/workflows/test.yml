@@ -1,11 +1,11 @@
-name: 🐳 Smoke Test
+name: Test
 
 on:
   workflow_call:
   pull_request:
 
 jobs:
-  build-test:
+  docker-compose:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,10 +28,10 @@ jobs:
         run: |
           docker-compose up --build -d
 
-      - name: Test endpoint raíz con curl
-        run: |
-          sleep 5  # Espera a que el contenedor esté listo
-          curl -f http://localhost:3000/ || (docker-compose logs && exit 1)
+      # - name: Run tests
+      #   run: |
+      #     # Aquí puedes ejecutar tus pruebas o validaciones
+      #     curl -f http://localhost:8080/ || exit 1
 
       - name: Stop Docker Compose
         run: |

@@ -1,0 +1,28 @@
+name: Deploy
+
+# Se ejecuta en push a main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  docker-publish:
+    needs: test
+    uses: ./.github/workflows/docker-publish.yml
+    secrets:
+      STAGE: ${{ secrets.STAGE }}
+      VALID_TOKEN: ${{ secrets.VALID_TOKEN }}
+      URL: ${{ secrets.URL }}
+
+  notify-portainer:
+    needs: [test, docker-publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Portainer
+      # TODO Revisar si está bien. Este es para Starnaliza
+        run: |
+          curl -X POST http://portainer.siryus-services.com:9000/api/stacks/webhooks/c9d7b728-4d90-4ffc-860b-2521a5728c4c
