@@ -34,8 +34,10 @@
 	// TODO: cambiar el nombre del contenedor y puerto
 	"runArgs": [
 		"--name",
-		"selenium-scrapper-quickstarter",
+		"siryus-selenium-scrapper-quickstarter",
 		"--env",
-		"TZ=Europe/Madrid"
+		"TZ=Europe/Madrid",
+		"--network",
+		"siryus-starnaliza_devcontainer_starnaliza-network"
 	]
 }
