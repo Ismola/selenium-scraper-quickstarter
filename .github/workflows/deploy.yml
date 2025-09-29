@@ -10,16 +10,19 @@ jobs:
   test:
     uses: ./.github/workflows/test.yml
 
-  docker-publish:
-    needs: test
-    uses: ./.github/workflows/docker-publish.yml
-    secrets:
-      STAGE: ${{ secrets.STAGE }}
-      VALID_TOKEN: ${{ secrets.VALID_TOKEN }}
-      URL: ${{ secrets.URL }}
+  # DOCKER PUBLISH - DESHABILITADO
+  # Descomenta este job para habilitar la construcción y publicación de la imagen Docker
+  # docker-publish:
+  #   needs: test
+  #   uses: ./.github/workflows/docker-publish.yml
+  #   secrets:
+  #     STAGE: ${{ secrets.STAGE }}
+  #     VALID_TOKEN: ${{ secrets.VALID_TOKEN }}
+  #     URL: ${{ secrets.URL }}
 
   notify-portainer:
-    # DISABLED 
+    # Solo depende de test - no espera a docker-publish
+    # Para reactivar dependencia de docker-publish, cambiar por:
     # needs: [test, docker-publish]
     needs: [test]
 
