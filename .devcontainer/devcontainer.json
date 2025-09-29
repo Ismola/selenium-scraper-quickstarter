@@ -36,8 +36,6 @@
 		"--name",
 		"siryus-selenium-scrapper-quickstarter",
 		"--env",
-		"TZ=Europe/Madrid",
-		"--network",
-		"siryus-starnaliza_devcontainer_starnaliza-network"
+		"TZ=Europe/Madrid"
 	]
 }
