@@ -19,10 +19,13 @@ jobs:
       URL: ${{ secrets.URL }}
 
   notify-portainer:
-    needs: [test, docker-publish]
+    # DISABLED 
+    # needs: [test, docker-publish]
+    needs: [test]
+
     runs-on: ubuntu-latest
     steps:
       - name: Notify Portainer
-      # TODO Revisar si está bien. Este es para Starnaliza
+      # TODO Revisar si está bien. Este es para Starnaliza c9d7b728-4d90-4ffc-860b-2521a5728c4c
         run: |
-          curl -X POST http://portainer.siryus-services.com:9000/api/stacks/webhooks/c9d7b728-4d90-4ffc-860b-2521a5728c4c
+          curl -X POST http://portainer.siryus-services.com:9000/api/stacks/webhooks/SAMPLE
