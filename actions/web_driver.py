@@ -16,7 +16,7 @@ def get_driver_chrome():
     options = add_chrome_arguments(options)
     
     # In Docker/Alpine environment, use the system chromium and chromedriver
-    if os.environ.get('DOCKERIZED', False) or os.path.exists('/usr/bin/chromedriver'):
+    if (os.environ.get('DOCKERIZED', False) or os.path.exists('/usr/bin/chromedriver') or STAGE == 'production'):
         service = Service('/usr/bin/chromedriver')
         options.binary_location = '/usr/bin/chromium-browser'
     else:
