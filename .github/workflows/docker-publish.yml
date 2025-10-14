@@ -9,8 +9,6 @@ on:
         required: true
       VALID_TOKEN:
         required: true
-      URL:
-        required: true
 
 # Defines two custom environment variables for the workflow. These are used for the Container registry domain, and a name for the Docker image that this workflow builds.
 env:
@@ -31,7 +29,6 @@ jobs:
     env:
       STAGE: ${{ secrets.STAGE }}
       VALID_TOKEN: ${{ secrets.VALID_TOKEN }}
-      URL: ${{ secrets.URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,7 +52,6 @@ jobs:
         run: |
           echo "STAGE=${{ secrets.STAGE }}" > .env
           echo "VALID_TOKEN=${{ secrets.VALID_TOKEN }}" >> .env
-          echo "URL=${{ secrets.URL }}" >> .env
       # This step uses the `docker/build-push-action` action to build the image, based on your repository's `Dockerfile`. If the build succeeds, it pushes the image to GitHub Packages.
       # It uses the `context` parameter to define the build's context as the set of files located in the specified path. For more information, see [Usage](https://github.com/docker/build-push-action#usage) in the README of the `docker/build-push-action` repository.
       # It uses the `tags` and `labels` parameters to tag and label the image with the output from the "meta" step.
