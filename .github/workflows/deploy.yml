@@ -11,24 +11,20 @@ jobs:
     uses: ./.github/workflows/test.yml
 
   # DOCKER PUBLISH - DESHABILITADO
-  # Descomenta este job para habilitar la construcción y publicación de la imagen Docker
-  # docker-publish:
-  #   needs: test
-  #   uses: ./.github/workflows/docker-publish.yml
-  #   secrets:
-  #     STAGE: ${{ secrets.STAGE }}
-  #     VALID_TOKEN: ${{ secrets.VALID_TOKEN }}
-  #     URL: ${{ secrets.URL }}
+  docker-publish:
+    needs: test
+    uses: ./.github/workflows/docker-publish.yml
+    secrets:
+      # Hay que guardar en las configuraion del repositorio en github los secretos
+      STAGE: ${{ secrets.STAGE }}
+      VALID_TOKEN: ${{ secrets.VALID_TOKEN }}
 
   notify-portainer:
-    # Solo depende de test - no espera a docker-publish
-    # Para reactivar dependencia de docker-publish, cambiar por:
-    # needs: [test, docker-publish]
-    needs: [test]
+    needs: [test, docker-publish]
 
     runs-on: ubuntu-latest
     steps:
       - name: Notify Portainer
-      # TODO Revisar si está bien. Este es para Starnaliza c9d7b728-4d90-4ffc-860b-2521a5728c4c
+        # TODO Este es para Starnaliza c9d7b728-4d90-4ffc-860b-2521a5728c4c
         run: |
           curl -X POST http://portainer.siryus-services.com:9000/api/stacks/webhooks/SAMPLE
