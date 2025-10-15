@@ -67,7 +67,10 @@ def kill_driver_process():
 
 def add_generic_arguments(options):
     if not has_display():
+        logging.info("Running in headless mode")
         options.add_argument("--headless")
+    else:
+        logging.info("Running in GUI mode")
     options.add_argument("--disable-web-security")
     options.add_argument("--disable-extension")
     options.add_argument("--disable-notifications")
