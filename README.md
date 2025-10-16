@@ -2,7 +2,7 @@
 
 **Selenium Scraper Quickstarter** is a professional template for building robust and scalable web scrapers using Selenium and Flask, ready for local development, Docker containers, and cloud deployment.
 
-[![🚀 Docker Build & Publish](https://github.com/Ismola/selenium-scraper-quickstarter/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/Ismola/selenium-scraper-quickstarter/actions/workflows/docker-publish.yml)
+[![Deploy](https://github.com/siryus-org/siryus-selenium-scraper-quickstarter/actions/workflows/deploy.yml/badge.svg)](https://github.com/siryus-org/siryus-selenium-scraper-quickstarter/actions/workflows/deploy.yml)
 
 ---
 
