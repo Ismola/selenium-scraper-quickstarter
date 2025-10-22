@@ -1,3 +1,27 @@
+# Project-specific files and directories
+/temp_downloads/
+/logs/
+/videos/
+*.deb
+*.deb*
+/.github/instructions
+
+# Streaming output files
+*.mp4
+*.avi
+*.mkv
+*.m3u8
+*.ts
+/tmp/current_session.*
+/tmp/selenium_*
+/tmp/stream*
+/tmp/frame_*
+
+# Test files
+test_*.py
+*_test.py
+*_backup.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

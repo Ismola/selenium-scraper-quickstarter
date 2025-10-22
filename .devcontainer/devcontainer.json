@@ -30,7 +30,7 @@
 		"memory": "8gb",
 		"storage": "32gb"
 	},
-	"appPort": 3000,
+	"appPort": 3010,
 	"runArgs": [
 		"--name",
 		"selenium-scrapper-quickstarter",

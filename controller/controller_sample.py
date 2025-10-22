@@ -25,7 +25,7 @@ def controller_sample(data):
         logging.info("|| Init Login")
         # driver = login(driver, username, password)
 
-        # Add actions
+        # Add actions here - customize for your use case
 
         return message
 

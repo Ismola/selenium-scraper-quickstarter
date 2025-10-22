@@ -1,60 +1,68 @@
-ARG PYTHON_VERSION=3.10.12
-FROM python:${PYTHON_VERSION}-alpine3.18 AS base
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim AS base
 
-# Install only essential runtime dependencies
-RUN apk add --no-cache \
-    firefox-esr \
-    chromium \
-    chromium-chromedriver
+# Install system dependencies including FFmpeg for streaming
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    unzip \
+    curl \
+    xvfb \
+    x11vnc \
+    fluxbox \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Google Chrome
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
 
 FROM base AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Install build dependencies and compile packages
-RUN apk add --no-cache --virtual .build-deps \
-    gcc \
-    musl-dev \
-    linux-headers
-
+# Copy requirements and install Python dependencies
 COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Compile Python files and remove source code
+# Copy application code
 COPY . .
-RUN python -m compileall -b . && \
-    find . -type f -name "*.py" ! -name "requirements.txt" -delete && \
-    find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true && \
-    find . -type d -name "*.egg-info" -exec rm -rf {} + 2>/dev/null || true
 
 FROM base AS final
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    DOCKERIZED=true
+    DOCKERIZED=true \
+    DISPLAY=:99 \
+    STREAMING_ENABLED=false
+
 WORKDIR /app
 
-# Install only essential runtime dependencies for final stage
-RUN apk add --no-cache --virtual .build-deps \
-    gcc \
-    musl-dev \
-    linux-headers \
-    && pip install --no-cache-dir \
-    flask==3.1.1 \
-    gunicorn==23.0.0 \
-    selenium==4.35.0 \
-    webdriver-manager==4.0.2 \
-    python-dotenv==1.1.1 \
-    psutil==7.0.0 \
-    requests==2.32.5 \
-    screeninfo==0.8.1 \
-    && apk del .build-deps
+# Install Python dependencies in final stage
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy application code from builder
 COPY --from=builder /app .
 
-EXPOSE 3000
+# Create startup script for X11 display
+RUN echo '#!/bin/bash' > /app/start.sh && \
+    echo 'Xvfb :99 -screen 0 1280x720x24 &' >> /app/start.sh && \
+    echo 'export DISPLAY=:99' >> /app/start.sh && \
+    echo 'sleep 2' >> /app/start.sh && \
+    echo 'fluxbox &' >> /app/start.sh && \
+    echo 'sleep 1' >> /app/start.sh && \
+    echo 'exec gunicorn -w 1 -b 0.0.0.0:3000 --timeout 300 main:app' >> /app/start.sh && \
+    chmod +x /app/start.sh
 
-ENTRYPOINT ["gunicorn", "-w", "2", "-b", "0.0.0.0:3000", "--timeout", "600", "main:app"]
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3000/ || exit 1
+
+ENTRYPOINT ["/app/start.sh"]
