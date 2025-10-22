@@ -1,6 +1,6 @@
 # 🚀 Selenium Scraper Quickstarter
 
-**Selenium Scraper Quickstarter** is a professional template for building robust and scalable web scrapers using Selenium and Flask, ready for local development, Docker containers, and cloud deployment.
+**Selenium Scraper Quickstarter** is a professional template for building robust and scalable web scrapers using Selenium and Flask, with **automatic browser streaming capabilities** for monitoring and debugging your automation tasks.
 
 [![🚀 Docker Build & Publish](https://github.com/Ismola/selenium-scraper-quickstarter/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/Ismola/selenium-scraper-quickstarter/actions/workflows/docker-publish.yml)
 
@@ -8,29 +8,41 @@
 
 ## ✨ Main Features
 
-- **Selenium Automation:** Advanced interaction with dynamic web pages.
-- **RESTful API with Flask:** Secure and customizable endpoint exposure.
-- **Bearer Authentication:** Security via configurable tokens.
-- **Environment Management:** Environment variables for production, testing, and staging.
-- **Docker & Codespaces Support:** Ready for containers and cloud development.
-- **Logging System:** Activity and error logging for auditing and debugging.
-- **Automated Downloads:** File and temporary directory management.
-- **Extensible & Modular:** Clean architecture for easily adding actions and endpoints.
+- **🎯 Selenium Automation:** Advanced interaction with dynamic web pages
+- **🌐 RESTful API with Flask:** Secure and customizable endpoint exposure
+- **🎥 Automatic Streaming:** Record MP4 videos of browser sessions automatically
+- **🔒 Bearer Authentication:** Security via configurable tokens
+- **⚙️ Environment Management:** Variables for production, testing, and staging
+- **🐳 Docker & Cloud Ready:** Containers and cloud development support
+- **📝 Logging System:** Activity and error logging for auditing and debugging
+- **📁 File Management:** Automated downloads and temporary directory handling
+- **🔧 Extensible & Modular:** Clean architecture for adding actions and endpoints
+- **💡 Production Ready:** Optimized for development and production environments
 
 ---
 
 ## 📁 Project Structure
 
 ```bash
-├── main.py                   # Flask entry point
+├── main.py                   # Flask entry point with streaming support
 ├── actions/                  # Scraping and automation logic
+│   └── web_driver.py        # WebDriver with automatic streaming
 ├── controller/               # Endpoint controllers
-├── temp_downloads/           # Temporary downloads
 ├── utils/                    # Utilities and configuration
+│   ├── external_streaming_service.py  # Video recording service
+│   └── config.py            # Environment configuration
+├── temp_downloads/           # Temporary downloads
+├── videos/                   # Streaming video outputs
+├── logs/                     # Application logs
+├── STREAMING_GUIDE.md        # Comprehensive streaming documentation
+└── requirements.txt          # Python dependencies
+```
+
 ├── requirements.txt          # Python dependencies
 ├── Dockerfile                # Production-ready Docker image
 ├── .env.example              # Example environment configuration
 └── README.md                 # This file
+
 ```
 
 ---
@@ -45,6 +57,16 @@ Configure scraper behavior via variables in the `.env` file. Copy `.env.example`
 | `VALID_TOKEN`      | Yes      | `sample`                                 | Bearer token to authenticate requests                              |
 | `HEADLESS_MODE`    | Optional | `auto`, `True`, `False`                  | Controls if the browser is visible or headless                     |
 | `AUTO_DELETE_LOGS` | Optional | `True`, `False`                          | Automatically deletes old logs                                     |
+
+### 🎥 Streaming Configuration
+
+| Variable           | Required | Default | Description                                                        |
+|--------------------|----------|---------|-------------------------------------------------------------------|
+| `STREAMING_ENABLED`| Optional | `false` | Enable/disable real-time browser streaming                       |
+| `STREAMING_FPS`    | Optional | `10`    | Frames per second for the stream (5-30 recommended)              |
+| `STREAMING_QUALITY`| Optional | `80`    | JPEG quality for stream images (1-100)                           |
+| `STREAMING_WIDTH`  | Optional | `1280`  | Browser window width for streaming                                |
+| `STREAMING_HEIGHT` | Optional | `720`   | Browser window height for streaming                               |
 
 > **Note:** See `.env.example` for more details and recommendations.
 > **Base URL:** The base URL is now set in the constant `BASE_URL` inside `utils/config.py`.  
@@ -153,11 +175,69 @@ Authorization: Bearer <VALID_TOKEN>
 | GET    | `/`        | Server health check                |
 | GET    | `/sample`  | Example endpoint (modifiable)      |
 
+### 🎥 Streaming Endpoints
+
+| Method | Route               | Description                                    |
+|--------|---------------------|------------------------------------------------|
+| POST   | `/stream/start`     | Start browser streaming                        |
+| POST   | `/stream/stop`      | Stop browser streaming                         |
+| GET    | `/stream/status`    | Get current streaming status                   |
+| POST   | `/stream/navigate`  | Navigate to URL during streaming               |
+| POST   | `/stream/action`    | Execute actions (click, type, scroll)         |
+| GET    | `/stream/video`     | Video stream endpoint (for embedding)         |
+| GET    | `/stream/viewer`    | 🌐 **Web interface to view stream**          |
+
+### 🎬 Demo Endpoints
+
+| Method | Route                    | Description                                    |
+|--------|--------------------------|------------------------------------------------|
+| POST   | `/demo/streaming-search` | Google search demo with streaming              |
+| POST   | `/demo/streaming-scraping`| Web scraping demo with streaming              |
+| POST   | `/demo/interactive`      | Interactive streaming session                  |
+
 #### Example with `curl`
 
 ```bash
 curl -H "Authorization: Bearer sample" http://localhost:3000/sample
 ```
+
+### 🎥 Quick Streaming Example
+
+1. **Enable streaming** in your `.env` file:
+
+   ```env
+   STREAMING_ENABLED=true
+   ```
+
+2. **Start the server:**
+
+   ```bash
+   python3 main.py
+   ```
+
+3. **Open the web viewer:**
+
+   Visit <http://localhost:3000/stream/viewer> in your browser
+
+4. **Start streaming:**
+
+   Click "▶️ Start Stream" or use the API:
+
+   ```bash
+   curl -X POST -H "Content-Type: application/json" \
+        -d '{"url":"https://www.google.com","browser":"chrome"}' \
+        http://localhost:3000/stream/start
+   ```
+
+5. **Run a demo:**
+
+   Click "🔍 Google Search Demo" or:
+
+   ```bash
+   curl -X POST http://localhost:3000/demo/streaming-search
+   ```
+
+Now you can watch your browser automation in real-time! 🎬
 
 ---
 
@@ -326,5 +406,37 @@ Pull requests and suggestions are welcome! Please open an issue to discuss major
 ## 📝 License
 
 MIT License © Ismola
+
+---
+
+## 🎥 Browser Streaming Features
+
+Este proyecto incluye capacidades avanzadas de streaming en tiempo real para visualizar las automatizaciones del navegador mientras se ejecutan.
+
+### ✨ Características del Streaming
+
+- **🎬 Vista en tiempo real:** Observa el navegador mientras automatiza tareas
+- **🎮 Control remoto:** Navega y ejecuta acciones desde la interfaz web
+- **📱 Interfaz responsive:** Viewer web optimizado para diferentes dispositivos
+- **🔍 Destacado de elementos:** Resalta elementos antes de interactuar
+- **⚙️ Calidad configurable:** Ajusta FPS y calidad según necesidades
+- **🐳 Docker ready:** Funciona en contenedores con display virtual
+- **📊 Demos incluidos:** Ejemplos listos para usar
+
+### 🚀 Casos de Uso
+
+- **Debugging:** Ve qué hace tu bot paso a paso
+- **Demostraciones:** Muestra automatizaciones a clientes/equipos
+- **Monitoreo:** Supervisa bots de larga duración
+- **Desarrollo:** Desarrolla scrapers de forma visual
+- **Educación:** Enseña automatización web
+
+### 📖 Documentación Completa
+
+Para guías detalladas, ejemplos de código y configuración avanzada, consulta:
+
+- **[STREAMING_GUIDE.md](STREAMING_GUIDE.md)** - Guía completa de streaming
+- **Interfaz Web:** <http://localhost:3000/stream/viewer>
+- **API Reference:** Endpoints de streaming documentados arriba
 
 ---

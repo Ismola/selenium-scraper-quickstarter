@@ -8,6 +8,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./temp_downloads:/app/temp_downloads
+      - ./videos:/tmp  # Volume for streaming videos
     restart: unless-stopped
     environment:
       - TZ=${TZ:-Europe/Madrid}
@@ -19,9 +20,21 @@ services:
       - PAGE_MAX_TIMEOUT=${PAGE_MAX_TIMEOUT:-7}
       - DOWNLOAD_MAX_TIMEOUT=${DOWNLOAD_MAX_TIMEOUT:-4}
       - BASE_URL=${BASE_URL:-https://www.google.com/}
+      # Streaming configuration
+      - STREAMING_ENABLED=${STREAMING_ENABLED:-false}
+      - STREAMING_FPS=${STREAMING_FPS:-10}
+      - STREAMING_QUALITY=${STREAMING_QUALITY:-80}
+      - STREAMING_WIDTH=${STREAMING_WIDTH:-1280}
+      - STREAMING_HEIGHT=${STREAMING_HEIGHT:-720}
+      # Docker-specific settings
+      - DOCKERIZED=true
+      - DISPLAY=:99
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/')"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    # Optional: Expose additional port for streaming if needed
+    # ports:
+    #   - 3001:3001  # For advanced streaming features
