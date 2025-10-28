@@ -89,7 +89,7 @@ def get_file(data):
         try:
             # Intentamos decodificarlo como Base64
             decoded_data = base64.b64decode(data)
-            file_name = f"{uuid.uuid4()}.base64"  # Nombre genérico para Base64
+            file_name = f"{uuid.uuid4()}.pdf"  # Nombre genérico para Base64
             return decoded_data, file_name
         except Exception as e:
             raise messageError(f"Error al decodificar Base64: {e}")
