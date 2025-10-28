@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from utils.config import PAGE_MAX_TIMEOUT, BASE_URL, DOWNLOAD_DIR, has_display
+from utils.config import PAGE_MAX_TIMEOUT, BASE_URL, DOWNLOAD_DIR, STAGE, has_display
 
 import psutil
 
