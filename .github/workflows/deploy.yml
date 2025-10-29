@@ -25,6 +25,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Notify Portainer
-        # TODO Este es para Starnaliza c9d7b728-4d90-4ffc-860b-2521a5728c4c
         run: |
           curl -X POST http://portainer.siryus-services.com:9000/api/stacks/webhooks/SAMPLE
