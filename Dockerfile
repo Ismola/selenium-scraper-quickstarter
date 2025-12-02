@@ -38,19 +38,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install only essential runtime dependencies for final stage
+COPY requirements.txt .
 RUN apk add --no-cache --virtual .build-deps \
     gcc \
     musl-dev \
     linux-headers \
-    && pip install --no-cache-dir \
-    flask==3.1.1 \
-    gunicorn==23.0.0 \
-    selenium==4.35.0 \
-    webdriver-manager==4.0.2 \
-    python-dotenv==1.1.1 \
-    psutil==7.0.0 \
-    requests==2.32.5 \
-    screeninfo==0.8.1 \
+    && pip install --no-cache-dir -r requirements.txt \
     && apk del .build-deps
 
 COPY --from=builder /app .
