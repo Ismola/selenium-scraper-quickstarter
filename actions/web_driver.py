@@ -12,7 +12,7 @@ import psutil
 
 def get_driver_chrome():
     options = Options()
-    options = add_generic_arguments(options, browser='chrome')
+    options = add_generic_arguments(options)
     options = add_chrome_arguments(options)
     
     # In Docker/Alpine environment, use the system chromium and chromedriver
@@ -28,7 +28,7 @@ def get_driver_chrome():
 
 def get_driver_firefox():
     options = webdriver.FirefoxOptions()
-    options = add_generic_arguments(options, browser='firefox')
+    options = add_generic_arguments(options)
     driver = webdriver.Firefox(options=options)
     return driver
 
