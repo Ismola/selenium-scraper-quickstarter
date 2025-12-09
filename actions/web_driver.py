@@ -5,14 +5,14 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from utils.config import PAGE_MAX_TIMEOUT, BASE_URL, DOWNLOAD_DIR, STAGE, has_display
+from utils.config import PAGE_MAX_TIMEOUT, BASE_URL, DOWNLOAD_DIR, STAGE, BROWSER_LANGUAGE, has_display
 
 import psutil
 
 
 def get_driver_chrome():
     options = Options()
-    options = add_generic_arguments(options)
+    options = add_generic_arguments(options, browser='chrome')
     options = add_chrome_arguments(options)
     
     # In Docker/Alpine environment, use the system chromium and chromedriver
@@ -28,7 +28,7 @@ def get_driver_chrome():
 
 def get_driver_firefox():
     options = webdriver.FirefoxOptions()
-    options = add_generic_arguments(options)
+    options = add_generic_arguments(options, browser='firefox')
     driver = webdriver.Firefox(options=options)
     return driver
 
@@ -71,6 +71,12 @@ def add_generic_arguments(options):
         options.add_argument("--headless")
     else:
         logging.info("Running in GUI mode")
+
+    # Set language based on BROWSER_LANGUAGE configuration
+    if BROWSER_LANGUAGE.lower() == 'es':
+        language_arg = "--lang=es-ES"
+    else:
+        language_arg = "--lang=en-US"
     options.add_argument("--disable-web-security")
     options.add_argument("--disable-extension")
     options.add_argument("--disable-notifications")
@@ -103,11 +109,18 @@ def add_chrome_arguments(options):
         "enable-logging"
     ]
     options.add_experimental_option("excludeSwitches", exp_opt)
+    
+    # Set language based on BROWSER_LANGUAGE configuration
+    if BROWSER_LANGUAGE.lower() == 'es':
+        language_list = ["es-ES", "es"]
+    else:
+        language_list = ["en-US", "en"]
+    
     pref_opt = {
         # Disable all type of popups
         "profile.default_content_setting_values.notifications": 2,
         "profile.password_manager_enabled": False,
-        "intl.accept_languages": ["es-Es", "es"],
+        "intl.accept_languages": language_list,
         "credentials_enable_service": False,
 
         # Automatic downloads

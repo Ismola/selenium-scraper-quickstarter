@@ -10,6 +10,7 @@ STAGE = os.getenv("STAGE") or 'staging'
 VALID_TOKEN = os.getenv("VALID_TOKEN") or 'sample'
 AUTO_DELETE_LOGS = os.getenv("AUTO_DELETE_LOGS") or True
 HEADLESS_MODE = os.getenv("HEADLESS_MODE") or 'auto'
+BROWSER_LANGUAGE = os.getenv("BROWSER_LANGUAGE") or 'en'
 DOWNLOAD_DIR = os.path.abspath("temp_downloads")
 PAGE_MAX_TIMEOUT = 7
 DOWNLOAD_MAX_TIMEOUT = 4
