@@ -1,13 +1,18 @@
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from utils.config import AUTO_DELETE_LOGS, STAGE, LOG_FILE_DELETION_DAYS
 from utils.error import messageError
 import re
 
 
+# Global variable to track the current log file path
+_current_log_file = None
+
+
 def configure_logger():
     try:
+        global _current_log_file
 
         # Get the current date and time to use in the log file name
         current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -20,6 +25,7 @@ def configure_logger():
         # Configure the name of the log file with the date, time, and incident number
         log_filename = f"{current_datetime}.log"
         log_filepath = os.path.join(logs_directory, log_filename)
+        _current_log_file = log_filepath
 
         # Configure the logging system to write to the dynamically created file
         logging.basicConfig(filename=log_filepath, level=logging.INFO,
@@ -37,19 +43,81 @@ def configure_logger():
         raise messageError("Error setting up logging")
 
 
+def _rotate_log_if_needed(logs_directory, current_datetime):
+    """
+    Verifica si el archivo de log actual es muy antiguo y crea uno nuevo si es necesario.
+
+    Esto asegura que incluso si el servicio ha estado corriendo durante días,
+    siempre habrá un archivo de log reciente donde escribir.
+
+    Args:
+        logs_directory (str): Ruta al directorio de logs
+        current_datetime (datetime): Fecha y hora actual
+    """
+    global _current_log_file
+
+    if not _current_log_file or not os.path.exists(_current_log_file):
+        return
+
+    try:
+        # Extraer el timestamp del nombre del archivo
+        filename = os.path.basename(_current_log_file)
+        match = re.match(
+            r"(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})\.log", filename)
+
+        if match:
+            log_datetime = datetime.strptime(
+                match.group(1), "%Y-%m-%d_%H-%M-%S")
+            difference = current_datetime - log_datetime
+
+            # Si el archivo actual tiene más de LOG_FILE_DELETION_DAYS días, crear uno nuevo
+            if difference.days >= LOG_FILE_DELETION_DAYS:
+                # Crear nuevo archivo de log
+                new_datetime = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")
+                new_log_filename = f"{new_datetime}.log"
+                new_log_filepath = os.path.join(
+                    logs_directory, new_log_filename)
+
+                # Reinicializar el logger con el nuevo archivo
+                logging.shutdown()
+
+                # Crear nuevo logger
+                logging.basicConfig(
+                    filename=new_log_filepath,
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    force=True
+                )
+
+                _current_log_file = new_log_filepath
+                logging.info(
+                    f"Log rotated: switching from {filename} to {new_log_filename}")
+
+    except Exception as e:
+        logging.warning(f"Error during log rotation: {str(e)}")
+
+
 def delete_old_logs():
     """
-    Elimina archivos de log antiguos y registros antiguos de archivos que sobreviven.
-    
+    Realiza rotación de logs y eliminación de archivos antiguos:
+
     Proceso:
-    1. Elimina archivos completos que tengan más de LOG_FILE_DELETION_DAYS días
-    2. De los archivos que sobreviven, elimina registros que tengan más de LOG_FILE_DELETION_DAYS días
+    1. Verifica si el archivo de log actual es muy antiguo (> LOG_FILE_DELETION_DAYS)
+    2. Si es muy antiguo, crea uno nuevo y reinicializa el logger
+    3. Elimina archivos completos que tengan más de LOG_FILE_DELETION_DAYS días
+    4. De los archivos que sobreviven, elimina registros que tengan más de LOG_FILE_DELETION_DAYS días
+
+    Esto garantiza que el servicio siempre tenga un archivo válido para escribir logs,
+    evitando pérdida de datos cuando se eliminan archivos antiguos.
     """
     try:
         current_datetime = datetime.now()
         base_directory = '/app' if os.environ.get('DOCKERIZED', False) else ''
         logs_directory = os.path.join(base_directory, 'logs')
         os.makedirs(logs_directory, exist_ok=True)
+
+        # Paso 0: Verificar y rotar el archivo de log actual si es muy antiguo
+        _rotate_log_if_needed(logs_directory, current_datetime)
 
         files = os.listdir(logs_directory)
         surviving_files = []
@@ -87,7 +155,7 @@ def _clean_old_records_from_file(file_path, current_datetime):
     """
     Limpia registros antiguos (más de LOG_FILE_DELETION_DAYS días) de un archivo de log específico.
     Si el archivo quedaría vacío después de la limpieza, lo elimina completamente.
-    
+
     Args:
         file_path (str): Ruta completa al archivo de log
         current_datetime (datetime): Fecha y hora actual para comparar
@@ -96,42 +164,42 @@ def _clean_old_records_from_file(file_path, current_datetime):
         # Leer todas las líneas del archivo
         with open(file_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
-        
+
         # Filtrar líneas que no sean muy antiguas
         filtered_lines = []
         records_removed = 0
-        
+
         for line in lines:
             # Extraer timestamp del registro usando regex
             # Formato esperado: "2025-09-08 12:31:19,625 - INFO - mensaje"
             timestamp_match = re.match(
                 r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),\d+ - ", line)
-            
+
             if timestamp_match:
                 try:
                     # Parsear la fecha del registro
                     record_datetime = datetime.strptime(
                         timestamp_match.group(1), "%Y-%m-%d %H:%M:%S")
-                    
+
                     # Calcular diferencia en días
                     difference = current_datetime - record_datetime
-                    
+
                     # Mantener registros de menos de LOG_FILE_DELETION_DAYS días
                     if difference.days <= LOG_FILE_DELETION_DAYS:
                         filtered_lines.append(line)
                     else:
                         records_removed += 1
-                        
+
                 except ValueError:
                     # Si hay error parseando la fecha, mantener la línea
                     filtered_lines.append(line)
             else:
                 # Si no tiene formato de timestamp reconocible, mantener la línea
                 filtered_lines.append(line)
-        
+
         # Verificar si el archivo quedaría vacío o solo con líneas vacías
         content_lines = [line for line in filtered_lines if line.strip()]
-        
+
         if not content_lines:
             # Si no hay contenido útil, eliminar el archivo completo
             os.remove(file_path)
@@ -141,10 +209,11 @@ def _clean_old_records_from_file(file_path, current_datetime):
             # Solo reescribir el archivo si se removieron registros y hay contenido
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.writelines(filtered_lines)
-            
+
             filename = os.path.basename(file_path)
-            logging.info(f"Cleaned {records_removed} old records from {filename}")
-            
+            logging.info(
+                f"Cleaned {records_removed} old records from {filename}")
+
     except Exception as e:
         logging.error(f"Error cleaning old records from {file_path}: {str(e)}")
         # No lanzar excepción para no afectar el procesamiento de otros archivos
@@ -168,5 +237,7 @@ def _clean_old_records_from_file(file_path, current_datetime):
 # - Archivos completos: Se eliminan archivos de log que tengan más de LOG_FILE_DELETION_DAYS días de antigüedad
 # - Registros individuales: De los archivos que sobreviven, se eliminan registros más antiguos de LOG_FILE_DELETION_DAYS días
 # - Archivos vacíos: Si un archivo queda sin contenido útil después de la limpieza, se elimina completamente
+# - Rotación automática: Si el archivo de log actual es muy antiguo, se crea uno nuevo automáticamente
 # - Los archivos se identifican por su formato de nombre: YYYY-MM-DD_HH-MM-SS.log
 # - Los registros se identifican por su timestamp en formato: YYYY-MM-DD HH:MM:SS,milliseconds
+# - ROTACIÓN SEGURA: El servicio siempre tendrá un archivo válido donde escribir, evitando pérdida de logs
