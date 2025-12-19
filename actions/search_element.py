@@ -14,14 +14,12 @@ def search_element(driver, locator, wait_to_search=True, raise_exception=True):
     wait = get_wait(driver)
     try:
         if wait_to_search:
-            try:
-                element = wait.until(expected_conditions.element_to_be_clickable((
-                    locator
-                )))
-            except:
-                element = wait.until(expected_conditions.visibility_of_element_located((
-                    locator
-                )))
+            element = wait.until(lambda d:
+                        # expected_conditions.presence_of_element_located(locator)(d) or
+                        expected_conditions.element_to_be_clickable(locator)(d) or
+                        expected_conditions.visibility_of_element_located(
+                            locator)(d)
+                        )
         else:
             element = driver.find_element(*locator)
         return element

@@ -8,6 +8,7 @@ from utils.error import messageError
 import uuid
 import tempfile
 import shutil
+from datetime import datetime
 
 
 def clear_directory(directory):
@@ -111,3 +112,33 @@ def createTempFile(data, file_name):
 
     # Retorna la ruta del archivo renombrado
     return final_path
+
+def take_screenshot(driver, directory="logs"):
+    """
+    Toma una captura de pantalla del navegador y la guarda con la fecha y hora actual.
+
+    Args:
+        driver: Instancia del WebDriver de Selenium
+        directory (str): Directorio donde guardar la captura (por defecto "logs")
+
+    Returns:
+        str: Ruta completa del archivo de captura guardado
+    """
+    try:
+        # Crear directorio si no existe
+        os.makedirs(directory, exist_ok=True)
+
+        # Generar nombre del archivo con fecha y hora
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"screenshot_{timestamp}.png"
+        filepath = os.path.join(directory, filename)
+
+        # Tomar captura de pantalla
+        driver.save_screenshot(filepath)
+
+        logging.info(f"Screenshot saved: {filepath}")
+        return filepath
+
+    except Exception as e:
+        logging.error(f"Error taking screenshot: {e}")
+        raise messageError(f"Error al tomar captura de pantalla: {e}")
