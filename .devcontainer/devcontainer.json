@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-	"name": "siryus-selenium-scrapper-quickstarter",
+	"name": "selenium-scrapper-quickstarter",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "ghcr.io/ismola/selenium-scraper-runtime:latest",
 	"containerEnv": {
@@ -12,11 +12,7 @@
 		"FIREFOX_BIN": "/usr/bin/firefox-esr"
 	},
 	"features": {
-		"ghcr.io/devcontainers/features/docker-in-docker:4": {
-			"version": "latest",
-			"enableNonRootDocker": "true",
-			"moby": "true"
-		}
+		"ghcr.io/devcontainers/features/docker-in-docker:4": {}
 		// ,
 		// "ghcr.io/devcontainers/features/python:1": {
 		// 	"version": "latest"
@@ -46,7 +42,7 @@
 	},
 	"postCreateCommand": "pip install -r requirements.txt",
 	// TODO: cambiar el nombre del contenedor y puerto
-	"appPort": 3000,
+	// "appPort": 3000,
 	"runArgs": [
 		"--name",
 		"selenium-scrapper-quickstarter",
