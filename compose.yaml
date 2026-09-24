@@ -3,7 +3,7 @@ services:
     image: ghcr.io/ismola/selenium-scraper-quickstarter:main
     pull_policy: always
     init: true
-    shm_size: "512m"
+    shm_size: "2gb"
     ports:
       - 3000:3000
       - 127.0.0.1:${METRICS_PORT:-9090}:9090
