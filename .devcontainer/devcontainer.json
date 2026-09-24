@@ -16,10 +16,11 @@
 			"version": "latest",
 			"enableNonRootDocker": "true",
 			"moby": "true"
-		},
-		"ghcr.io/devcontainers/features/python:1": {
-			"version": "latest"
 		}
+		// ,
+		// "ghcr.io/devcontainers/features/python:1": {
+		// 	"version": "latest"
+		// }
 	},
 	"customizations": {
 		"vscode": {
@@ -28,11 +29,12 @@
 				"donjayamanne.python-extension-pack",
 				"ismola.ismola-extension-pack",
 				"github.vscode-github-actions"
-			],
-			"settings": {
-				"python.terminal.activateEnvInCurrentTerminal": false,
-				"python.defaultInterpreterPath": "/usr/local/python/current/bin/python3"
-			}
+			]
+			// ,
+			// "settings": {
+			// 	"python.terminal.activateEnvInCurrentTerminal": false,
+			// 	"python.defaultInterpreterPath": "/usr/local/python/current/bin/python3"
+			// }
 		}
 	},
 	"containerUser": "root",
@@ -42,7 +44,7 @@
 		"memory": "8gb",
 		"storage": "32gb"
 	},
-	"postCreateCommand": "python -m pip install -r requirements.txt",
+	"postCreateCommand": "pip install -r requirements.txt",
 	// TODO: cambiar el nombre del contenedor y puerto
 	"appPort": 3000,
 	"runArgs": [
