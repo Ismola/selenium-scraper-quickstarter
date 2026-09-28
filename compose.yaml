@@ -1,5 +1,6 @@
 services:
   server:
+    user: "0:0"
     image: ghcr.io/ismola/selenium-scraper-quickstarter:main
     pull_policy: always
     init: true
