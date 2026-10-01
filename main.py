@@ -9,7 +9,7 @@ def create_app():
     validate_runtime_configuration()
     app = Flask(__name__)
     app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
-    init_request_logging(app)
+    init_request_logging(app, log_json_body=True)
     init_metrics(app)
 
     @app.route('/')
